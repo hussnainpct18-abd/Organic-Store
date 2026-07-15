@@ -1,0 +1,65 @@
+[
+  {
+    "name": "acx",
+    "description": "dscecerer",
+    "price": "23412",
+    "category": "Honey",
+    "image": "/uploads/product-1784110619031-50317618.webp",
+    "badge": "Organic",
+    "id": 1784110634528
+  },
+  {
+    "id": 1,
+    "name": "Pure Sidr Honey",
+    "description": "Raw, unfiltered Sidr honey harvested from wild hive colonies in pristine mountain valleys. Rich in antioxidants and enzymes.",
+    "price": "PKR 2,800",
+    "category": "Honey",
+    "image": "https://images.unsplash.com/photo-1781773338901-72fec08dbdb4?w=600&h=480&fit=crop&auto=format",
+    "badge": "Best Seller"
+  },
+  {
+    "id": 2,
+    "name": "Premium Desi Ghee",
+    "description": "Traditional hand-churned ghee made from 100% grass-fed buffalo milk using centuries-old bilona method.",
+    "price": "PKR 3,200",
+    "category": "Ghee",
+    "image": "https://images.unsplash.com/photo-1769986913279-6f620a61d591?w=600&h=480&fit=crop&auto=format",
+    "badge": "Organic"
+  },
+  {
+    "id": 3,
+    "name": "Cold-Press Olive Oil",
+    "description": "Single-estate extra virgin olive oil, cold-pressed within 24 hours of harvest. Zero additives, pure goodness.",
+    "price": "PKR 2,100",
+    "category": "Oils",
+    "image": "https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?w=600&h=480&fit=crop&auto=format",
+    "badge": "Cold Pressed"
+  },
+  {
+    "id": 4,
+    "name": "Wild Berry Honey",
+    "description": "Floral honey collected from beehives placed near wild berry orchards. Light amber with a fruity finish.",
+    "price": "PKR 1,900",
+    "category": "Honey",
+    "image": "https://images.unsplash.com/photo-1763825613390-287a9db0803d?w=600&h=480&fit=crop&auto=format",
+    "badge": "Raw & Pure"
+  },
+  {
+    "id": 5,
+    "name": "Premium Dry Fruits Mix",
+    "description": "Hand-selected almonds, cashews, walnuts and pistachios sourced from organic certified farms across Pakistan.",
+    "price": "PKR 1,600",
+    "category": "Dry Fruits",
+    "image": "https://images.unsplash.com/photo-1591122523233-22037c1dec9f?w=600&h=480&fit=crop&auto=format",
+    "badge": "Farm Fresh"
+  },
+  {
+    "id": 6,
+    "name": "Black Seed Oil",
+    "description": "First cold-press Nigella sativa oil — known as 'the cure for everything except death'. Full therapeutic potency.",
+    "price": "PKR 1,400",
+    "category": "Herbal",
+    "image": "https://images.unsplash.com/photo-1609763951640-c0d7bd98b257?w=600&h=480&fit=crop&auto=format",
+    "badge": "Herbal"
+  }
+]
