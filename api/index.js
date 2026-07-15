@@ -14,20 +14,20 @@ const productsPath = path.join(__dirname, 'products.json');
 const uploadsDir = path.join(__dirname, 'public/uploads');
 
 // Ensure uploads directory exists
-if (!fs.existsSync(uploadsDir)) {
-  fs.mkdirSync(uploadsDir, { recursive: true });
-}
+// if (!fs.existsSync(uploadsDir)) {
+//   fs.mkdirSync(uploadsDir, { recursive: true });
+// }
 
-// Multer storage config: save files to public/uploads with original extension
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, uploadsDir),
-  filename: (req, file, cb) => {
-    const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
-    const ext = path.extname(file.originalname);
-    cb(null, `product-${uniqueSuffix}${ext}`);
-  },
-});
-const upload = multer({ storage, limits: { fileSize: 10 * 1024 * 1024 } }); // 10MB limit
+// // Multer storage config: save files to public/uploads with original extension
+// const storage = multer.diskStorage({
+//   destination: (req, file, cb) => cb(null, uploadsDir),
+//   filename: (req, file, cb) => {
+//     const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
+//     const ext = path.extname(file.originalname);
+//     cb(null, `product-${uniqueSuffix}${ext}`);
+//   },
+// });
+// const upload = multer({ storage, limits: { fileSize: 10 * 1024 * 1024 } }); // 10MB limit
 
 app.use(cors());
 app.use(express.json());
