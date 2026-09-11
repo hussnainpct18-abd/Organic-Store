@@ -1,3 +1,4 @@
+import fs from 'fs';
 import path from 'path';
 import dotenv from 'dotenv';
 import mysql from 'mysql2/promise';
@@ -9,7 +10,7 @@ const pool = mysql.createPool({
   port: Number(process.env.DB_PORT || 3306),
   user: process.env.DB_USER || 'root',
   password: process.env.DB_PASSWORD || '',
-  database: process.env.DB_NAME || 'organic_products',
+  database: process.env.DB_NAME || 'organics',
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0,
@@ -36,6 +37,47 @@ export async function initializeDatabase() {
 
   try {
     await pool.query(createProductsTable);
+
+    const [countRows] = await pool.query('SELECT COUNT(*) AS total FROM products');
+    const total = Number(countRows[0]?.total || 0);
+
+    if (total === 0) {
+      const seedPath = path.resolve(process.cwd(), 'products.json');
+      let rawProducts = '[]';
+
+      try {
+        rawProducts = fs.readFileSync(seedPath, 'utf8');
+      } catch (error) {
+        console.warn('No default products.json file found. Skipping seed import.');
+      }
+
+      const parsed = JSON.parse(rawProducts || '[]');
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        for (const product of parsed) {
+          await pool.query(
+            `INSERT INTO products (id, name, description, price, category, image, badge)
+             VALUES (?, ?, ?, ?, ?, ?, ?)
+             ON DUPLICATE KEY UPDATE
+               name = VALUES(name),
+               description = VALUES(description),
+               price = VALUES(price),
+               category = VALUES(category),
+               image = VALUES(image),
+               badge = VALUES(badge)`,
+            [
+              Number(product.id || 0) || null,
+              String(product.name || '').trim(),
+              String(product.description || '').trim(),
+              String(product.price || '').trim(),
+              String(product.category || '').trim(),
+              String(product.image || '').trim(),
+              String(product.badge || 'Organic').trim(),
+            ]
+          );
+        }
+      }
+    }
+
     console.log('MySQL database initialized successfully.');
   } catch (error) {
     console.error('Failed to initialize MySQL database:', error.message);

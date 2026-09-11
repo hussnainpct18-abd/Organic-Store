@@ -14,10 +14,10 @@ const rootDir = path.resolve(__dirname, '..');
 
 const app = express();
 const PORT = Number(process.env.PORT || 3001);
-const uploadsDir = path.join(rootDir, 'public/uploads');
+const uploadsDir = path.join(rootDir, 'backend', 'uploads');
 const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
-const adminEmail = process.env.ADMIN_EMAIL || 'shahid@admin.com';
-const adminPassword = process.env.ADMIN_PASSWORD || 'admin123';
+const adminEmail = process.env.ADMIN_EMAIL || 'admin@yourdomain.com';
+const adminPassword = process.env.ADMIN_PASSWORD || 'change-me';
 const adminToken = process.env.ADMIN_TOKEN || 'al-shahid-organics-admin-token';
 
 if (!fs.existsSync(uploadsDir)) {
@@ -35,8 +35,20 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage, limits: { fileSize: 10 * 1024 * 1024 } });
 
+const allowedOrigins = [frontendUrl, 'http://localhost:5173', 'http://127.0.0.1:5173', 'https://*.vercel.app'];
+
 app.use(cors({
-  origin: [frontendUrl, 'http://localhost:5173', 'http://127.0.0.1:5173'],
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.some((entry) => entry === origin || entry === '*')) {
+      return callback(null, true);
+    }
+
+    if (origin.endsWith('.vercel.app')) {
+      return callback(null, true);
+    }
+
+    return callback(new Error('CORS not allowed'));
+  },
   credentials: true,
 }));
 app.use(express.json({ limit: '10mb' }));
@@ -50,7 +62,10 @@ app.post('/api/admin/login', (req, res) => {
     return res.status(400).json({ error: 'Email and password are required.' });
   }
 
-  if (String(email).trim().toLowerCase() !== adminEmail.toLowerCase() || String(password) !== adminPassword) {
+  const incomingEmail = String(email).trim().toLowerCase();
+  const incomingPassword = String(password);
+
+  if (incomingEmail !== String(adminEmail).trim().toLowerCase() || incomingPassword !== adminPassword) {
     return res.status(401).json({ error: 'Invalid credentials. Please try again.' });
   }
 
@@ -80,13 +95,21 @@ if (fs.existsSync(distPath)) {
   });
 }
 
-initializeDatabase()
-  .then(() => {
-    app.listen(PORT, () => {
-      console.log(`Backend server running on http://localhost:${PORT}`);
+if (process.env.VERCEL !== '1') {
+  initializeDatabase()
+    .then(() => {
+      app.listen(PORT, () => {
+        console.log(`Backend server running on http://localhost:${PORT}`);
+      });
+    })
+    .catch((error) => {
+      console.error('Unable to start backend:', error.message);
+      process.exit(1);
     });
-  })
-  .catch((error) => {
-    console.error('Unable to start backend due to MySQL configuration issue:', error.message);
-    process.exit(1);
+} else {
+  initializeDatabase().catch((error) => {
+    console.error('Database initialization failed:', error.message);
   });
+}
+
+export default app;
