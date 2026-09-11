@@ -1143,8 +1143,8 @@ function AdminDashboard({ onLogout, adminToken }: { onLogout: () => void; adminT
             </h1>
           </div>
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-full bg-[#2E7D32] flex items-center justify-center text-white text-xs font-bold">S</div>
-            <span className="text-sm text-gray-600 hidden sm:block">shahid@admin.com</span>
+            <div className="w-8 h-8 rounded-full bg-[#2E7D32] flex items-center justify-center text-white text-xs font-bold">A</div>
+            <span className="text-sm text-gray-600 hidden sm:block">Admin</span>
           </div>
         </header>
 
