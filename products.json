@@ -1,14 +1,5 @@
 [
   {
-    "name": "acx",
-    "description": "dscecerer",
-    "price": "23412",
-    "category": "Honey",
-    "image": "/uploads/product-1784110619031-50317618.webp",
-    "badge": "Organic",
-    "id": 1784110634528
-  },
-  {
     "id": 1,
     "name": "Pure Sidr Honey",
     "description": "Raw, unfiltered Sidr honey harvested from wild hive colonies in pristine mountain valleys. Rich in antioxidants and enzymes.",
