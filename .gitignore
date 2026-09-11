@@ -1,4 +1,31 @@
-node_modules
+# Dependencies
+node_modules/
+**/node_modules/
+
+# Environment files
 .env
 .env.*
 !.env.example
+
+# Build output
+/dist/
+**/dist/
+
+# Uploads and local runtime files
+public/uploads/
+**/uploads/
+
+# Logs
+npm-debug.log*
+logs/
+*.log
+
+# OS/editor files
+.DS_Store
+Thumbs.db
+.vscode/
+
+# Coverage and caches
+coverage/
+.cache/
+.parcel-cache/

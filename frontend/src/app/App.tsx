@@ -900,7 +900,7 @@ function AdminLogin({ onLogin, onBack }: { onLogin: (token: string) => void; onB
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="admin@admin.com"
+              placeholder="Enter your email"
               className="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white placeholder-white/30 focus:outline-none focus:border-[#D4A017] transition-colors text-sm"
               style={{ fontFamily: "Inter, sans-serif" }}
               required
