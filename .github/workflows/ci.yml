@@ -1,0 +1,77 @@
+name: CI
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+    branches: ["**"]
+
+jobs:
+  build-and-smoke-test:
+    runs-on: ubuntu-latest
+
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_DATABASE: organics
+          MYSQL_USER: hussnain
+          MYSQL_PASSWORD: hussnain
+          MYSQL_ROOT_PASSWORD: root
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -uroot -proot --silent"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=20
+
+    env:
+      DB_HOST: 127.0.0.1
+      DB_PORT: 3306
+      DB_NAME: organics
+      DB_USER: hussnain
+      DB_PASSWORD: hussnain
+      PORT: 3001
+      FRONTEND_URL: http://localhost:5173
+      ADMIN_EMAIL: admin@yourdomain.com
+      ADMIN_PASSWORD: change-me
+      ADMIN_TOKEN: ci-admin-token
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build frontend
+        run: npm run build
+
+      - name: Start backend smoke test
+        run: |
+          npm run dev:backend > backend.log 2>&1 &
+          for i in {1..30}; do
+            if curl -fsS http://localhost:3001/api/health >/tmp/health.json 2>/dev/null; then
+              echo "Backend health check passed"
+              cat /tmp/health.json
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "Backend did not start successfully"
+          cat backend.log
+          exit 1
+
+      - name: Upload backend log on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-ci-log
+          path: backend.log
