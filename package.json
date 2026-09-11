@@ -6,6 +6,8 @@
   "scripts": {
     "start": "node server.js",
     "dev": "concurrently \"vite\" \"node server.js\"",
+    "dev:backend": "node server.js",
+    "migrate:products": "node backend/scripts/migrateProducts.js",
     "build": "vite build"
   },
   "dependencies": {
@@ -46,12 +48,14 @@
     "cmdk": "1.1.1",
     "cors": "^2.8.6",
     "date-fns": "3.6.0",
+    "dotenv": "^17.4.2",
     "embla-carousel-react": "8.6.0",
     "express": "^5.2.1",
     "input-otp": "1.4.2",
     "lucide-react": "0.487.0",
     "motion": "12.23.24",
     "multer": "^2.2.0",
+    "mysql2": "^3.24.4",
     "next-themes": "0.4.6",
     "react-day-picker": "8.10.1",
     "react-dnd": "16.0.1",

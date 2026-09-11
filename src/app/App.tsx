@@ -816,7 +816,7 @@ function Footer({ onAdminClick }: { onAdminClick: () => void }) {
 
 // ─── Admin Login ──────────────────────────────────────────────────────────────
 
-function AdminLogin({ onLogin, onBack }: { onLogin: () => void; onBack: () => void }) {
+function AdminLogin({ onLogin, onBack }: { onLogin: (token: string) => void; onBack: () => void }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPass, setShowPass] = useState(false);
@@ -829,14 +829,26 @@ function AdminLogin({ onLogin, onBack }: { onLogin: () => void; onBack: () => vo
     e.preventDefault();
     setLoading(true);
     setError("");
-    await new Promise((r) => setTimeout(r, 800));
-    if (email === "shahid@admin.com" && password === "admin123") {
-      onLogin();
-    } else {
-      setError("Invalid credentials. Please try again.");
+
+    try {
+      const res = await fetch('/api/admin/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data?.error || 'Invalid credentials. Please try again.');
+      }
+
+      onLogin(data.token);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Invalid credentials. Please try again.');
       setShake(true);
       setTimeout(() => setShake(false), 500);
     }
+
     setLoading(false);
   };
 
@@ -974,7 +986,7 @@ interface AdminProductForm {
 
 const EMPTY_FORM: AdminProductForm = { name: "", description: "", price: "", category: "Honey", image: "", badge: "Organic" };
 
-function AdminDashboard({ onLogout }: { onLogout: () => void }) {
+function AdminDashboard({ onLogout, adminToken }: { onLogout: () => void; adminToken: string }) {
   const [view, setView] = useState<AdminView>("dashboard");
   const [products, setProducts] = useState<Product[]>([]);
 
@@ -1000,12 +1012,22 @@ function AdminDashboard({ onLogout }: { onLogout: () => void }) {
   const handleAdd = async (e: React.FormEvent) => {
     e.preventDefault();
     const newProduct: Product = { ...form, id: Date.now() };
-    await fetch('/api/products', { 
-      method: 'POST', 
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(newProduct) 
+    const res = await fetch('/api/products', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${adminToken}`,
+      },
+      body: JSON.stringify(newProduct)
     });
-    setProducts((p) => [newProduct, ...p]);
+    const json = await res.json();
+
+    if (!res.ok) {
+      throw new Error(json?.error || 'Unable to add product.');
+    }
+
+    const savedProduct = json.product || newProduct;
+    setProducts((p) => [savedProduct, ...p]);
     setForm(EMPTY_FORM);
     setView("products");
     showToast("Product added successfully!");
@@ -1014,19 +1036,39 @@ function AdminDashboard({ onLogout }: { onLogout: () => void }) {
   const handleEdit = async (e: React.FormEvent) => {
     e.preventDefault();
     const updated = { ...form, id: editId! };
-    await fetch('/api/products', { 
-      method: 'PUT', 
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(updated) 
+    const res = await fetch(`/api/products/${editId}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${adminToken}`,
+      },
+      body: JSON.stringify(updated)
     });
-    setProducts((p) => p.map((pr) => pr.id === editId ? updated : pr));
+    const json = await res.json();
+
+    if (!res.ok) {
+      throw new Error(json?.error || 'Unable to update product.');
+    }
+
+    const savedProduct = json.product || updated;
+    setProducts((p) => p.map((pr) => pr.id === editId ? savedProduct : pr));
     setView("products");
     showToast("Product updated successfully!");
     setEditId(null);
   };
 
   const handleDelete = async () => {
-    await fetch(`/api/products/${deleteId}`, { method: 'DELETE' });
+    const res = await fetch(`/api/products/${deleteId}`, {
+      method: 'DELETE',
+      headers: { 'Authorization': `Bearer ${adminToken}` },
+    });
+    const json = await res.json();
+
+    if (!res.ok) {
+      showToast(json?.error || 'Unable to delete product.', 'error');
+      return;
+    }
+
     setProducts((p) => p.filter((pr) => pr.id !== deleteId));
     setDeleteId(null);
     showToast("Product deleted.", "error");
@@ -1488,10 +1530,15 @@ function HomePage({ onAdminClick }: { onAdminClick: () => void }) {
 export default function App() {
   const [page, setPage] = useState<Page>("home");
   const [authed, setAuthed] = useState(false);
+  const [adminToken, setAdminToken] = useState("");
 
   const goAdmin = () => setPage("admin-login");
-  const handleLogin = () => { setAuthed(true); setPage("admin-dashboard"); };
-  const handleLogout = () => { setAuthed(false); setPage("home"); };
+  const handleLogin = (token: string) => {
+    setAdminToken(token);
+    setAuthed(true);
+    setPage("admin-dashboard");
+  };
+  const handleLogout = () => { setAuthed(false); setPage("home"); setAdminToken(""); };
 
   return (
     <AnimatePresence mode="wait">
@@ -1507,7 +1554,7 @@ export default function App() {
       )}
       {page === "admin-dashboard" && authed && (
         <motion.div key="dashboard" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-          <AdminDashboard onLogout={handleLogout} />
+          <AdminDashboard onLogout={handleLogout} adminToken={adminToken} />
         </motion.div>
       )}
     </AnimatePresence>
