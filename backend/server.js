@@ -2,6 +2,7 @@ import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
 import fs from 'fs';
+import os from 'os';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import multer from 'multer';
@@ -14,7 +15,10 @@ const rootDir = path.resolve(__dirname, '..');
 
 const app = express();
 const PORT = Number(process.env.PORT || 3001);
-const uploadsDir = path.join(rootDir, 'backend', 'uploads');
+// Vercel's filesystem is read-only except /tmp, so uploads there are ephemeral.
+const uploadsDir = process.env.VERCEL
+  ? path.join(os.tmpdir(), 'uploads')
+  : path.join(__dirname, 'uploads');
 const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
 const adminEmail = process.env.ADMIN_EMAIL || 'admin@yourdomain.com';
 const adminPassword = process.env.ADMIN_PASSWORD || 'change-me';
